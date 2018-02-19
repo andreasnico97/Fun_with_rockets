@@ -1,33 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using KRPC.Client;
+using System.Threading;
+using System.Threading.Tasks;
 using KRPC.Client.Services.SpaceCenter;
 
 namespace FunWithRockets
 {
     public class HoverMode
     {
-        private readonly Connection _connection;
-        public HoverMode(Connection connection)
+        private bool activated = false;
+        private Vessel _vessel;
+        public HoverMode(Vessel vessel)
         {
-            _connection = connection;
+            _vessel = vessel;
         }
 
         public void Activate()
         {
-            var spaceCenter = _connection.SpaceCenter();
-            var vessel = spaceCenter.ActiveVessel;
-            var srfFrame = vessel.Orbit.Body.ReferenceFrame;
+            activated = true;
+            var thread = new Thread(Hover);
+            thread.Start();
+        }
 
-            while (true)
+        public void Deactivate()
+        {
+            activated = false;
+            _vessel.Accelerate(0);
+        }
+
+        private void Hover()
+        {
+            var srfFrame = _vessel.Orbit.Body.ReferenceFrame;
+            while (activated)
             {
                 Console.Clear();
-                var a = 9.81 - vessel.Flight(srfFrame).VerticalSpeed;
-                vessel.Accelerate((float) a);
-                vessel.PrintTelemetry();
-                System.Threading.Thread.Sleep(500);
+                var a = 9.81 - _vessel.Flight(srfFrame).VerticalSpeed;
+                _vessel.Accelerate((float)a);
+                _vessel.PrintTelemetry();
             }
         }
+
     }
 }

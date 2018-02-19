@@ -9,8 +9,11 @@ namespace FunWithRockets
         static void Main(string[] args)
         {
             var connection = new Connection();
-            var hoverMode = new HoverMode(connection);
+            var vessel = connection.SpaceCenter().ActiveVessel;
+            var hoverMode = new HoverMode(vessel);
             hoverMode.Activate();
+            System.Threading.Thread.Sleep(20000);
+            hoverMode.Deactivate();
         }
     }
 }
