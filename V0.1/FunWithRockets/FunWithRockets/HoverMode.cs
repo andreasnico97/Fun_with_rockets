@@ -40,18 +40,12 @@ namespace FunWithRockets
                 Console.WriteLine("Ship mass: {0}", Math.Round(vessel.Mass, 3));
 
                 var a = 9.81 - vessel.Flight(srfFrame).VerticalSpeed;
-                Accelerate(vessel, (float) a);
+                vessel.Accelerate((float) a);
 
                 Console.WriteLine("Current engine acceleration: {0}", Math.Round((vessel.Thrust / vessel.Mass), 3));
 
                 System.Threading.Thread.Sleep(500);
             }
-        }
-        private void Accelerate(Vessel vessel, float a)
-        {
-            float f = vessel.Mass * a;
-            float thr = f / (vessel.AvailableThrust);
-            vessel.Control.Throttle = thr;
         }
     }
 }
