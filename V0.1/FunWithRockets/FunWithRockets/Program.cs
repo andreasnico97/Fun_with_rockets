@@ -36,7 +36,7 @@ namespace FunWithRockets
 
                 Console.WriteLine(String.Format("Ship mass: {0}", Math.Round(vessel.Mass, 3).ToString()));
 
-                var a = 9.81 - ((vessel.Flight(srfFrame).VerticalSpeed * Math.Abs(vessel.Flight(srfFrame).VerticalSpeed)));
+                var a = 9.81 - ((vessel.Flight(srfFrame).VerticalSpeed));
                 accelerate(vessel, (float)a);
 
                 Console.WriteLine(string.Format("Current engine acceleration: {0}", Math.Round((vessel.Thrust/vessel.Mass), 3)));
