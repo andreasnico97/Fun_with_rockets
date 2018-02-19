@@ -35,5 +35,45 @@ namespace FunWithRockets
             Console.WriteLine("Ship mass: {0}", Math.Round(vessel.Mass, 3));
             Console.WriteLine("Current engine acceleration: {0}", Math.Round((vessel.Thrust / vessel.Mass), 3));
         }
+
+        public static void Land(this Vessel vessel)
+        {
+            var srfFrame = vessel.Orbit.Body.ReferenceFrame;
+            var obtFrame = vessel.Orbit.Body.NonRotatingReferenceFrame;
+
+            while (vessel.Flight(srfFrame).VerticalSpeed > -2)
+            {
+                System.Threading.Thread.Sleep(100);
+            }
+
+            vessel.Control.SAS = true;
+            vessel.Control.RCS = true;
+            vessel.Control.Brakes = true;
+            vessel.Control.SASMode = SASMode.Retrograde;
+            bool thrust = false;
+
+            while (!(vessel.Situation.Equals(VesselSituation.Landed) || vessel.Situation.Equals(VesselSituation.Splashed)))
+            {
+                var com_offset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
+
+                var v_isq = Math.Pow(vessel.Flight(srfFrame).Speed, 2);
+                var d = vessel.Flight().SurfaceAltitude - com_offset;
+                var a = (float)(((v_isq) / (2 * d)) + 9.81);
+
+                float f = vessel.Mass * a;
+                float thr = f / (vessel.AvailableThrust);
+                if (thr > 0.98)
+                {
+                    thrust = true;
+                }
+
+                if(thrust)
+                {
+                    vessel.Accelerate(a);
+                }       
+            }
+            vessel.Accelerate(0);
+            
+        }
     }
 }
