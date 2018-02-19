@@ -35,7 +35,6 @@ namespace FunWithRockets
                 Console.Clear();
                 var a = 9.81 - _vessel.Flight(srfFrame).VerticalSpeed;
                 _vessel.Accelerate((float)a);
-                _vessel.PrintTelemetry();
             }
         }
 
