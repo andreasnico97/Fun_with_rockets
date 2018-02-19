@@ -8,15 +8,12 @@ namespace FunWithRockets
     {
         static void Main(string[] args)
         {
-            using (var connection = new Connection())
-            {
-                var spaceCenter = connection.SpaceCenter();
-                var vessel = spaceCenter.ActiveVessel;
-                vessel.Name = "My Vessel";
-                var flightInfo = vessel.Flight();
-                Console.WriteLine(flightInfo.MeanAltitude);
-                Console.WriteLine("test");
-            }
+            var connection = new Connection();
+            var spaceCenter = connection.SpaceCenter();
+            var vessel = spaceCenter.ActiveVessel;
+            var refFrame = vessel.Orbit.Body.ReferenceFrame;
+            while (true)
+                Console.WriteLine(vessel.Position(refFrame));
         }
     }
 }
