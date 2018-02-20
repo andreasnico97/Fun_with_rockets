@@ -6,15 +6,16 @@ namespace FunWithRockets
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var connection = new Connection();
             var vessel = connection.SpaceCenter().ActiveVessel;
-            //var hoverMode = new HoverMode(vessel);
-            //hoverMode.Activate();
-            //System.Threading.Thread.Sleep(20000);
-            //hoverMode.Deactivate();
-            //System.Threading.Thread.Sleep(2000);
+            Console.WriteLine("Buckle up" +
+                              "" +
+                              "" +
+                              "" +
+                              "" +
+                              "");
             vessel.Land();
         }
     }

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using KRPC.Client.Services.SpaceCenter;
 
 namespace FunWithRockets
 {
     public class HoverMode
     {
-        private bool activated = false;
+        private bool _activated = false;
         private Vessel _vessel;
         public HoverMode(Vessel vessel)
         {
@@ -16,21 +15,21 @@ namespace FunWithRockets
 
         public void Activate()
         {
-            activated = true;
+            _activated = true;
             var thread = new Thread(Hover);
             thread.Start();
         }
 
         public void Deactivate()
         {
-            activated = false;
+            _activated = false;
             _vessel.Accelerate(0);
         }
 
         private void Hover()
         {
             var srfFrame = _vessel.Orbit.Body.ReferenceFrame;
-            while (activated)
+            while (_activated)
             {
                 Console.Clear();
                 var a = 9.81 - _vessel.Flight(srfFrame).VerticalSpeed;

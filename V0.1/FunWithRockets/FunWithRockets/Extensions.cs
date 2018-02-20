@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using KRPC.Client.Services.SpaceCenter;
 
 namespace FunWithRockets
@@ -39,7 +37,6 @@ namespace FunWithRockets
         public static void Land(this Vessel vessel)
         {
             var srfFrame = vessel.Orbit.Body.ReferenceFrame;
-            var obtFrame = vessel.Orbit.Body.NonRotatingReferenceFrame;
 
             while (vessel.Flight(srfFrame).VerticalSpeed > -2)
             {
@@ -49,25 +46,26 @@ namespace FunWithRockets
             vessel.Control.SAS = true;
             vessel.Control.RCS = true;
             vessel.Control.Brakes = true;
+            vessel.Control.Gear = true;
             vessel.Control.SASMode = SASMode.Retrograde;
-            bool thrust = false;
+            bool shouldThrust = false;
 
-            while (!(vessel.Situation.Equals(VesselSituation.Landed) || vessel.Situation.Equals(VesselSituation.Splashed)))
+            while (!(vessel.Situation.Equals(VesselSituation.Landed) ||
+                     vessel.Situation.Equals(VesselSituation.Splashed)) )
             {
-                var com_offset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
+                double comOffset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
+                double initialSpeedSquared = Math.Pow(vessel.Flight(srfFrame).Speed, 2);
+                double distanceToGround = vessel.Flight().SurfaceAltitude - comOffset;
+                float a = (float)(((initialSpeedSquared) / (2 * distanceToGround)) + 9.81);
 
-                var v_isq = Math.Pow(vessel.Flight(srfFrame).Speed, 2);
-                var d = vessel.Flight().SurfaceAltitude - com_offset;
-                var a = (float)(((v_isq) / (2 * d)) + 9.81);
-
-                float f = vessel.Mass * a;
-                float thr = f / (vessel.AvailableThrust);
-                if (thr > 0.98)
+                float thrustRequired = vessel.Mass * a;
+                float throttle = thrustRequired / (vessel.AvailableThrust);
+                if (throttle > 0.98)
                 {
-                    thrust = true;
+                    shouldThrust = true;
                 }
 
-                if(thrust)
+                if(shouldThrust)
                 {
                     vessel.Accelerate(a);
                 }       
