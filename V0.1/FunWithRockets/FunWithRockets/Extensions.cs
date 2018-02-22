@@ -44,31 +44,41 @@ namespace FunWithRockets
             }
 
             vessel.Control.SAS = true;
-            vessel.Control.RCS = true;
             vessel.Control.Brakes = true;
             vessel.Control.Gear = true;
-            vessel.Control.SASMode = SASMode.Retrograde;
+            while (!(vessel.Control.SASMode == SASMode.Retrograde && vessel.Control.RCS))
+            {
+                vessel.Control.SASMode = SASMode.Retrograde;
+                vessel.Control.RCS = true;
+            }
+
             bool shouldThrust = false;
 
-            while (!(vessel.Situation.Equals(VesselSituation.Landed) ||
-                     vessel.Situation.Equals(VesselSituation.Splashed)) )
+            double comOffset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
+            double distanceToGround = vessel.Flight().SurfaceAltitude - comOffset;
+
+            while (distanceToGround > 0.5)
             {
-                double comOffset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
+                comOffset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
+                distanceToGround = vessel.Flight().SurfaceAltitude - comOffset;
+
                 double initialSpeedSquared = Math.Pow(vessel.Flight(srfFrame).Speed, 2);
-                double distanceToGround = vessel.Flight().SurfaceAltitude - comOffset;
-                float a = (float)(((initialSpeedSquared) / (2 * distanceToGround)) + 9.81);
+                float a = (float)( ((3+initialSpeedSquared) / (2 * distanceToGround)) + 9.8);
 
                 float thrustRequired = vessel.Mass * a;
                 float throttle = thrustRequired / (vessel.AvailableThrust);
-                if (throttle > 0.98)
-                {
-                    shouldThrust = true;
-                }
 
-                if(shouldThrust)
-                {
-                    vessel.Accelerate(a);
-                }       
+                if (vessel.Flight(srfFrame).Speed < 20) { vessel.Control.SASMode = SASMode.StabilityAssist; }
+
+                if (throttle > 0.98) { shouldThrust = true;  }
+                if (throttle < 0.1)  { shouldThrust = false; }
+                
+                if(shouldThrust) { vessel.Accelerate(a); }
+            }
+            while(!(vessel.Situation == VesselSituation.Landed || vessel.Situation == VesselSituation.Splashed))
+            {
+                vessel.Accelerate((float)1);
+                Console.WriteLine(vessel.Flight(srfFrame).Speed);
             }
             vessel.Accelerate(0);
             
