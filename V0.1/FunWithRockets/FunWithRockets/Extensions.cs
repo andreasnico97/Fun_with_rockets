@@ -59,21 +59,29 @@ namespace FunWithRockets
 
             while (distanceToGround > 0.5)
             {
-                comOffset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
-                distanceToGround = vessel.Flight().SurfaceAltitude - comOffset;
-
                 double initialSpeedSquared = Math.Pow(vessel.Flight(srfFrame).Speed, 2);
-                float a = (float)( ((3+initialSpeedSquared) / (2 * distanceToGround)) + 9.8);
+                float a = (float)(((3+initialSpeedSquared) / (2 * distanceToGround)) + 9.8);
 
                 float thrustRequired = vessel.Mass * a;
                 float throttle = thrustRequired / (vessel.AvailableThrust);
 
-                if (vessel.Flight(srfFrame).Speed < 20) { vessel.Control.SASMode = SASMode.StabilityAssist; }
+                if (vessel.Flight(srfFrame).Speed < 20)
+                {
+                    vessel.Control.SASMode = SASMode.StabilityAssist;
+                    
+                }
+                else
+                {
+                    vessel.Control.SASMode = SASMode.Retrograde;
+                }
 
                 if (throttle > 0.98) { shouldThrust = true;  }
                 if (throttle < 0.1)  { shouldThrust = false; }
-                
+
                 if(shouldThrust) { vessel.Accelerate(a); }
+
+                comOffset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
+                distanceToGround = vessel.Flight().SurfaceAltitude - comOffset;
             }
             while(!(vessel.Situation == VesselSituation.Landed || vessel.Situation == VesselSituation.Splashed))
             {
