@@ -47,7 +47,7 @@ namespace FunWithRockets
             }
 
             vessel.Control.SAS = true;
-            vessel.Control.Brakes = true;
+            vessel.Control.Brakes = vessel.Orbit.Body.HasAtmosphere;
             vessel.Control.Gear = true;
             while (!(vessel.Control.SASMode == SASMode.Retrograde && vessel.Control.RCS))
             {
