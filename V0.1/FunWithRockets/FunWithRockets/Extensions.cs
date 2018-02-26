@@ -18,22 +18,22 @@ namespace FunWithRockets
             {
                 return Math.Round(n, decimals);
             }
-            var flight = vessel.Flight();
-            var obtFrame = vessel.Orbit.Body.NonRotatingReferenceFrame;
-            var srfFrame = vessel.Orbit.Body.ReferenceFrame;
+            var srfFlight = vessel.Flight(vessel.Orbit.Body.ReferenceFrame);
+            var obtFligt  = vessel.Flight(vessel.Orbit.Body.NonRotatingReferenceFrame);
 
-            Console.WriteLine("Altitude above sea: {0}", Round(flight.MeanAltitude));
-            Console.WriteLine("Altitude above ground: {0}", Round(flight.SurfaceAltitude));
+            Console.WriteLine(   "Altitude above sea: {0}", Round(srfFlight.MeanAltitude));
+            Console.WriteLine("Altitude above ground: {0}", Round(srfFlight.SurfaceAltitude));
 
-            Console.WriteLine("Orbit Speed: {0}", Round(vessel.Flight(obtFrame).Speed));
-            Console.WriteLine("Surface Speed: {0}", Round(vessel.Flight(srfFrame).Speed));
-            Console.WriteLine("Vertical Speed: {0}", Round(vessel.Flight(srfFrame).VerticalSpeed));
+            Console.WriteLine(     "Orbit Speed: {0}", Round(obtFligt.Speed));
+            Console.WriteLine(   "Surface Speed: {0}", Round(srfFlight.Speed));
+            Console.WriteLine(  "Vertical Speed: {0}", Round(srfFlight.VerticalSpeed));
+            Console.WriteLine("Horizontal Speed. {0}", Round(srfFlight.HorizontalSpeed));
 
             Console.WriteLine("Current throttle: {0}", Round(vessel.Control.Throttle));
-            Console.WriteLine("Max thrust: {0}", Round(vessel.AvailableThrust));
-            Console.WriteLine("Current thrust: {0}", Round(vessel.Thrust));
+            Console.WriteLine(      "Max thrust: {0}", Round(vessel.AvailableThrust));
+            Console.WriteLine(  "Current thrust: {0}", Round(vessel.Thrust));
 
-            Console.WriteLine("Ship mass: {0}", Round(vessel.Mass));
+            Console.WriteLine(                  "Ship mass: {0}", Round(vessel.Mass));
             Console.WriteLine("Current engine acceleration: {0}", Round(vessel.Thrust / vessel.Mass));
         }
 
@@ -59,11 +59,12 @@ namespace FunWithRockets
 
             double comOffset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
             double distanceToGround = vessel.Flight().SurfaceAltitude - comOffset;
+            double srfGrav = vessel.Orbit.Body.SurfaceGravity;
 
             while (distanceToGround > 0.5)
             {
                 double initialSpeedSquared = Math.Pow(vessel.Flight(srfFrame).Speed, 2);
-                float acc = (float)(((3+initialSpeedSquared) / (2 * distanceToGround)) + 9.8);
+                float acc = (float)(((3+initialSpeedSquared) / (2 * distanceToGround)) + srfGrav);
 
                 float thrustRequired = vessel.Mass * acc;
                 float throttle = thrustRequired / (vessel.AvailableThrust);
