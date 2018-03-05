@@ -10,9 +10,11 @@ namespace FunWithRockets
         {
             var connection = new Connection();
             var vessel = connection.SpaceCenter().ActiveVessel;
+            vessel.PrintTelemetry();
             Console.WriteLine("Buckle up");
             vessel.Land();
             Console.WriteLine("Landed");
+            vessel.PrintTelemetry();
         }
     }
 }

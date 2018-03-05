@@ -39,16 +39,17 @@ namespace FunWithRockets
 
         public static void Land(this Vessel vessel)
         {
-            var srfFrame = vessel.Orbit.Body.ReferenceFrame;
+            var srfFlight = vessel.Flight(vessel.Orbit.Body.ReferenceFrame);
 
-            while (vessel.Flight(srfFrame).VerticalSpeed > -2)
+            while (srfFlight.VerticalSpeed > -2)
             {
                 System.Threading.Thread.Sleep(100);
             }
 
             vessel.Control.SAS = true;
-            vessel.Control.Brakes = vessel.Orbit.Body.HasAtmosphere;
             vessel.Control.Gear = true;
+            vessel.Control.Brakes = vessel.Orbit.Body.HasAtmosphere;
+
             while (!(vessel.Control.SASMode == SASMode.Retrograde && vessel.Control.RCS))
             {
                 vessel.Control.SASMode = SASMode.Retrograde;
@@ -63,7 +64,7 @@ namespace FunWithRockets
 
             while (distanceToGround > 0.5)
             {
-                double initialSpeedSquared = Math.Pow(vessel.Flight(srfFrame).Speed, 2);
+                double initialSpeedSquared = Math.Pow(srfFlight.Speed, 2);
                 float acc = (float)(((3+initialSpeedSquared) / (2 * distanceToGround)) + srfGrav);
 
                 float thrustRequired = vessel.Mass * acc;
@@ -74,7 +75,7 @@ namespace FunWithRockets
 
                 if(shouldThrust) { vessel.Accelerate(acc); }
                 vessel.Control.SASMode =
-                    vessel.Flight(srfFrame).Speed < 20 ?
+                    srfFlight.Speed < 20 ?
                         SASMode.StabilityAssist : SASMode.Retrograde;
 
                 comOffset = Math.Abs(vessel.BoundingBox(vessel.ReferenceFrame).Item1.Item2);
@@ -85,7 +86,6 @@ namespace FunWithRockets
                     vessel.Situation == VesselSituation.Splashed))
             {
                 vessel.Accelerate(1);
-                Console.WriteLine(vessel.Flight(srfFrame).Speed);
             }
             vessel.Accelerate(0);
         }
