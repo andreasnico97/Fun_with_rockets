@@ -19,12 +19,12 @@ namespace FunWithRockets
                 return Math.Round(n, decimals);
             }
             var srfFlight = vessel.Flight(vessel.Orbit.Body.ReferenceFrame);
-            var obtFligt  = vessel.Flight(vessel.Orbit.Body.NonRotatingReferenceFrame);
+            var obtFlight = vessel.Flight(vessel.Orbit.Body.NonRotatingReferenceFrame);
 
             Console.WriteLine(   "Altitude above sea: {0}", Round(srfFlight.MeanAltitude));
             Console.WriteLine("Altitude above ground: {0}", Round(srfFlight.SurfaceAltitude));
 
-            Console.WriteLine(     "Orbit Speed: {0}", Round(obtFligt.Speed));
+            Console.WriteLine(     "Orbit Speed: {0}", Round(obtFlight.Speed));
             Console.WriteLine(   "Surface Speed: {0}", Round(srfFlight.Speed));
             Console.WriteLine(  "Vertical Speed: {0}", Round(srfFlight.VerticalSpeed));
             Console.WriteLine("Horizontal Speed. {0}", Round(srfFlight.HorizontalSpeed));
@@ -35,6 +35,33 @@ namespace FunWithRockets
 
             Console.WriteLine(                  "Ship mass: {0}", Round(vessel.Mass));
             Console.WriteLine("Current engine acceleration: {0}", Round(vessel.Thrust / vessel.Mass));
+        }
+
+        public static string OrbitalInfo(this Vessel vessel, int decimals=3, bool advanced=false)
+        {
+            double Round(double n)
+            {
+                return Math.Round(n, decimals);
+            }
+            var obt = vessel.Orbit;
+
+            var baseString = string.Format("Apoapsis:     {0}\n", Round(obt.ApoapsisAltitude)) +
+                             string.Format("Periapsis:    {0}\n", Round(obt.PeriapsisAltitude)) +
+                             string.Format("Inclination:  {0}\n", Round(obt.Inclination)) +
+                             string.Format("Eccentricity: {0}\n", Round(obt.Eccentricity)) +
+                                           "\n" +
+                             string.Format("Time to apoapsis:  {0}\n", Round(obt.TimeToApoapsis)) +
+                             string.Format("Time to periapsis: {0}\n", Round(obt.TimeToPeriapsis));
+
+            if (!advanced)
+            {
+                return baseString;
+            }
+            else
+            {
+                var period_s = Round(obt.Period);
+                var period = TimeSpan.FromSeconds(period_s);
+            }
         }
 
         public static void Land(this Vessel vessel)
