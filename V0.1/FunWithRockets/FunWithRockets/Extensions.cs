@@ -37,7 +37,7 @@ namespace FunWithRockets
             Console.WriteLine("Current engine acceleration: {0}", Round(vessel.Thrust / vessel.Mass));
         }
 
-        public static string OrbitalInfo(this Vessel vessel, int decimals=3, bool advanced=false)
+        public static string GetOrbitalInfo(this Vessel vessel, bool advanced, int decimals=3)
         {
             double Round(double n)
             {
@@ -53,15 +53,14 @@ namespace FunWithRockets
                              string.Format("Time to apoapsis:  {0}\n", Round(obt.TimeToApoapsis)) +
                              string.Format("Time to periapsis: {0}\n", Round(obt.TimeToPeriapsis));
 
-            if (!advanced)
-            {
-                return baseString;
-            }
-            else
-            {
-                var period_s = Round(obt.Period);
-                var period = TimeSpan.FromSeconds(period_s);
-            }
+            if (!advanced) return baseString;
+
+            // Advanced
+            var periodS = obt.Period;
+            var period = TimeSpan.FromSeconds(periodS);
+            var advancedString = string.Format("Orbital period: {0}\n", period);
+
+            return baseString + "\n" + advancedString;
         }
 
         public static void Land(this Vessel vessel)
