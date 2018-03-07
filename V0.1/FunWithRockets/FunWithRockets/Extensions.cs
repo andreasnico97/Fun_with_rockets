@@ -60,6 +60,11 @@ namespace FunWithRockets
             var period = TimeSpan.FromSeconds(periodS);
             var advancedString = string.Format("Orbital period: {0}\n", period);
 
+            var a3 = Math.Pow(vessel.Orbit.Apoapsis, 3);
+            var GM = vessel.Orbit.Body.GravitationalParameter;
+            var periodAtApoapsis = 2 * Math.PI * Math.Sqrt(a3 / GM);
+            advancedString += string.Format("Peiod if circ. at apoapsis: {0}", periodAtApoapsis);
+            
             return baseString + "\n" + advancedString;
         }
 

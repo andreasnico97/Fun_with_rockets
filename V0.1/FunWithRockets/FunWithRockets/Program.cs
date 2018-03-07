@@ -16,6 +16,7 @@ namespace FunWithRockets
             Console.WriteLine("Landed");
             vessel.PrintTelemetry();
             Console.WriteLine(vessel.GetOrbitalInfo(true));
+            connection.Dispose();
         }
     }
 }
