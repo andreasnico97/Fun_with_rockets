@@ -120,5 +120,49 @@ namespace FunWithRockets
             }
             vessel.Accelerate(0);
         }
+        
+        public static void launch(this Vessel vessel)
+        {
+            vessel.AutoPilot.ReferenceFrame = vessel.SurfaceReferenceFrame;
+            vessel.AutoPilot.TargetDirection = new Tuple<double, double, double>(1, 0, 0);
+            vessel.AutoPilot.Engage();
+            vessel.Accelerate(1.3F);
+            vessel.Control.ActivateNextStage();
+            while (vessel.Orbit.ApoapsisAltitude < 80000)
+            {
+                double turnoverPercentage = Math.Min(vessel.Flight().SurfaceAltitude / 40000.0, 1.0F);
+                vessel.AutoPilot.TargetDirection = new Tuple<double, double, double>((1.0 - turnoverPercentage), 0, turnoverPercentage);
+
+                foreach (var eng in vessel.Parts.Engines)
+                {
+                    if (!eng.HasFuel)
+                    {
+                        vessel.Control.ActivateNextStage();
+                    }
+                }
+            }
+
+            vessel.Control.Throttle = 0;
+
+            while (true)
+            {
+                vessel.AutoPilot.TargetDirection = new Tuple<double, double, double>(0, 0, 1);
+                var oribitalVelocity = Math.Sqrt((vessel.Orbit.Body.GravitationalParameter) / vessel.Orbit.Apoapsis);
+                var neededSpeed = oribitalVelocity - (vessel.Flight(vessel.OrbitalReferenceFrame).HorizontalSpeed);
+                var accelerationTime = (neededSpeed/2) / (vessel.AvailableThrust / vessel.Mass);
+                var timeToBurn = vessel.Orbit.TimeToApoapsis - accelerationTime;
+                Console.WriteLine("Time to burn: {0}", timeToBurn);
+                if (timeToBurn <= 0)
+                {
+                    while (vessel.Orbit.PeriapsisAltitude < 70000)
+                    {
+                        vessel.Control.Throttle = 1.0F;
+                        System.Threading.Thread.Sleep(10);
+                    }
+                    break;
+                }
+            }
+            vessel.Accelerate(0);
+        }
     }
 }
