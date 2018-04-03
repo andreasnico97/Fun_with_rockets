@@ -135,7 +135,7 @@ namespace FunWithRockets
                 vessel.AutoPilot.TargetDirection =
                     new Tuple<double, double, double>(1.0 - turnoverPercentage, 0, turnoverPercentage);
 
-                if (vessel.Parts.Engines.Count(e => !(e.Part.RCS == null) && !e.HasFuel) > 0)
+                if (vessel.Parts.Engines.Any(e => !(e.Part.RCS == null) && !e.HasFuel))
                 {
                     vessel.Control.ActivateNextStage();
                 }
