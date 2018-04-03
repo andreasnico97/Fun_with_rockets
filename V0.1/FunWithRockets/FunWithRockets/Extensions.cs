@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using KRPC.Client.Services.SpaceCenter;
 
 namespace FunWithRockets
@@ -131,14 +132,12 @@ namespace FunWithRockets
             while (vessel.Orbit.ApoapsisAltitude < 80000)
             {
                 double turnoverPercentage = Math.Min(vessel.Flight().SurfaceAltitude / 40000.0, 1.0F);
-                vessel.AutoPilot.TargetDirection = new Tuple<double, double, double>((1.0 - turnoverPercentage), 0, turnoverPercentage);
+                vessel.AutoPilot.TargetDirection =
+                    new Tuple<double, double, double>(1.0 - turnoverPercentage, 0, turnoverPercentage);
 
-                foreach (var eng in vessel.Parts.Engines)
+                if (vessel.Parts.Engines.Count(e => !(e.Part.RCS == null) && !e.HasFuel) > 0)
                 {
-                    if (!eng.HasFuel)
-                    {
-                        vessel.Control.ActivateNextStage();
-                    }
+                    vessel.Control.ActivateNextStage();
                 }
             }
 
@@ -147,8 +146,8 @@ namespace FunWithRockets
             while (true)
             {
                 vessel.AutoPilot.TargetDirection = new Tuple<double, double, double>(0, 0, 1);
-                var oribitalVelocity = Math.Sqrt((vessel.Orbit.Body.GravitationalParameter) / vessel.Orbit.Apoapsis);
-                var neededSpeed = oribitalVelocity - (vessel.Flight(vessel.OrbitalReferenceFrame).HorizontalSpeed);
+                var oribitalVelocity = Math.Sqrt(vessel.Orbit.Body.GravitationalParameter / vessel.Orbit.Apoapsis);
+                var neededSpeed = oribitalVelocity - vessel.Flight(vessel.OrbitalReferenceFrame).HorizontalSpeed;
                 var accelerationTime = (neededSpeed/2) / (vessel.AvailableThrust / vessel.Mass);
                 var timeToBurn = vessel.Orbit.TimeToApoapsis - accelerationTime;
                 Console.WriteLine("Time to burn: {0}", timeToBurn);
